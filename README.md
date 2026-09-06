@@ -1,347 +1,592 @@
-S.A.M.A.R.T.H. 🛡️
+# 🛡️ S.A.M.A.R.T.H.
 
-Spatial Analytics & Money Account Routing Tracker for Home-affairs
+## Spatial Analytics & Money Account Routing Tracker for Home-affairs
 
-Predictive Intelligence Dashboard for Cyber Fraud Detection, Money-Mule Tracking & ATM Cash-Out Hotspot Prediction
+> **Law Enforcement Operational Grid for Cyber-Fraud Intelligence, Geospatial Analysis & ATM/Cash-Out Corridor Detection**
 
-S.A.M.A.R.T.H. is a frontend prototype designed to demonstrate how cyber-fraud complaints can be transformed into a spatial intelligence workflow.
+S.A.M.A.R.T.H. is a web-based **cyber-fraud investigation and geospatial intelligence prototype** designed to demonstrate how a reported financial fraud incident can be analyzed using location intelligence, ATM infrastructure data, transaction-flow visualization, and risk scoring.
 
-The dashboard allows an operator to enter a fraud incident location, fraud amount, and elapsed time, then simulates:
+The system provides an operational-style dashboard where an authorized officer can enter a fraud incident, resolve its geographical location, query nearby **real OpenStreetMap (OSM) ATM/Bank points**, calculate distances, generate dynamic risk scores, and visualize potential cash-out corridors.
 
-📍 Incident geolocation
+---
 
-🗺️ Spatial ATM hotspot prediction
+# 🚀 Key Capabilities
 
-💰 Money-mule transaction routing
+### 🔐 Officer Authentication
 
-🔗 Multi-layer financial flow visualization
+The dashboard is protected by an authentication layer that provides:
 
-🚨 Risk/confidence scoring
+* Officer login
+* Officer registration
+* Password recovery
+* Security passphrase verification
+* Session logout
+* Officer identity display
+* Locked dashboard before authentication
 
-🏦 Simulated bank account hold actions
+Credentials are stored locally using the browser's `localStorage`.
 
-👮 Simulated geo-tagged police dispatch
+> ⚠️ This authentication system is intended for demonstration purposes and is **not suitable for production law-enforcement systems**.
 
-Note: This is a prototype/demo application. The fraud predictions, account information, risk percentages, transaction routing, and interception actions are simulated and do not represent real banking, law-enforcement, or NCRP data.
+---
 
-✨ Features
+### 📍 Smart Location Resolution
 
-📞 1930 Fraud Complaint Simulation
+Officers can enter locations such as:
 
-Enter:
+```text
+Hazratganj, Lucknow
+Connaught Place, Delhi
+Sector 17, Chandigarh
+Andheri, Mumbai
+```
 
-Victim / incident location
+The application uses **OpenStreetMap Nominatim** to resolve the location into latitude and longitude coordinates.
 
-Fraud amount
+The geocoder attempts multiple query variations before falling back to the default Lucknow coordinates if no result is found.
 
-Time elapsed since the incident
+---
 
-The application uses the location to generate a simulated fraud-response scenario.
+### 🗺️ Live OpenStreetMap Infrastructure Query
 
-🗺️ Interactive India Map
+Unlike a static hotspot demo, this version queries **actual OpenStreetMap POI data** around the incident location.
 
-The dashboard uses Leaflet.js with OpenStreetMap tiles to display:
+The system searches for:
 
-Incident origin
+```text
+ATM
+Bank
+```
 
-Predicted ATM hotspots
+within the selected geographical area.
 
-Risk zones
+Returned nodes contain:
 
-Approximate distance from the incident
+* Latitude
+* Longitude
+* Operator/name
+* POI type
 
-Estimated cash-out windows
+The dashboard then plots the returned infrastructure directly onto the Leaflet map.
 
-The map initially opens with an India-wide view and automatically moves to the searched location after simulation.
+---
 
-💸 Money Mule Routing Graph
+### 📐 Haversine Distance Calculation
 
-The prototype demonstrates a simplified transaction flow:
+The system calculates the geographical distance between:
 
-Victim
-   │
-   ▼
-Mule Layer 1
-   │
-   ├──── 55% ────► Layer 2A
-   │
-   └──── 45% ────► Layer 2B
+```text
+Incident Location
+        ↓
+ATM / Bank Node
+```
 
-The transaction split is dynamically calculated from the entered fraud amount.
+using the **Haversine formula**.
 
-🚨 ATM Risk Prediction
+Distances are displayed in:
 
-The prototype generates three simulated ATM hotspots with different risk levels.
-
-Risk
-
-Classification
-
-≥ 80%
-
-🔴 High Risk
-
-50–80%
-
-🟠 Moderate Risk
-
-Each hotspot includes:
-
-ATM/bank name
-
-Distance from incident
-
-Risk percentage
-
-Estimated cash-out window
-
-🏦 Simulated Bank Auto-Hold
-
-After a simulation, the dashboard enables an Auto-Hold action.
-
-The prototype displays a simulated REST webhook response representing a request to place a hold on the suspected mule account.
-
-👮 Simulated Police Dispatch
-
-The dashboard also provides a Beat Police Alert action that simulates sending a geo-tagged interception alert to the nearest police patrol.
-
-🛠️ Technologies Used
-
-Technology
-
-Purpose
-
-HTML5
-
-Application structure
-
-CSS3
-
-Custom styling
-
-JavaScript
-
-Application logic
-
-Tailwind CSS
-
-UI styling
-
-Leaflet.js
-
-Interactive maps
-
-OpenStreetMap
-
-Map tiles
-
-Nominatim
-
-Location geocoding
-
-Font Awesome
-
-Icons
-
-Google Fonts
-
-Inter & JetBrains Mono
-
-The application loads Tailwind CSS, Leaflet, Font Awesome, and Google Fonts through external CDNs.
-
-📁 Project Structure
-
-SMART-H/
-│
-├── samarth_v2.html
-└── README.md
-
-🚀 Getting Started
-
-1. Clone the repository
-
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-
-2. Enter the project directory
-
-cd YOUR_REPOSITORY
-
-3. Open the application
-
-Simply open:
-
-samarth_v2.html
-
-in a modern web browser.
-
-Alternatively, use VS Code's Live Server extension.
-
-▶️ How to Use
-
-Step 1 — Enter Incident Location
+```text
+Meters
+Kilometers
+```
 
 Example:
 
-Connaught Place, New Delhi
+```text
+842 m
+0.84 km
+```
 
-You can also enter other Indian locations such as:
+This allows the system to rank infrastructure based on proximity to the incident anchor point.
 
-Sector 17 Chandigarh
-Hazratganj Lucknow
-Andheri Mumbai
+---
 
-Step 2 — Enter Fraud Amount
+# 🧠 Dynamic Risk Engine
+
+The prototype calculates a risk score dynamically using:
+
+* Distance from incident location
+* Time elapsed since the reported incident
+
+The base risk decreases as the distance from the incident increases.
+
+A simplified representation is:
+
+```text
+Risk ≈ Distance-based score − Time decay
+```
+
+Risk is constrained between:
+
+```text
+30% ─────────────── 98%
+```
+
+If the incident is older than approximately 25 minutes, an additional time-decay factor is applied.
+
+---
+
+# ⏱️ Cash-Out Corridor Estimation
+
+The system also calculates an estimated time window using the distance between the incident and the infrastructure node.
+
+The current prototype uses an estimated transit calculation based on geographical distance.
 
 Example:
 
-85000
+```text
+ATM Distance: 1.2 km
+Estimated Corridor: ~6 mins
+```
 
-Step 3 — Enter Time Elapsed
+> This is a mathematical prototype estimate, **not a real prediction of criminal behavior or ATM usage**.
 
-Example:
+---
 
-18
+# 💰 Money Mule Routing Visualization
 
-Step 4 — Run Simulation
+The dashboard contains a visual representation of a simplified financial transaction chain:
 
-Click:
+```text
+                    ┌── Layer 2A
+                    │     55%
+Victim ──► Mule ────┤
+                    │
+                    └── Layer 2B
+                          45%
+```
 
-Simulate 1930 Fraud & Predict Hotspots
+The fraud amount is dynamically divided into:
 
-The dashboard will:
+```text
+55%
+45%
+```
 
-Resolve the location.
+For example:
 
-Place an incident marker.
-
-Generate simulated ATM hotspots.
-
-Calculate transaction splits.
-
-Display the money-mule routing graph.
-
-Enable interception actions.
-
-The location is resolved using the Nominatim geocoding API, with a New Delhi fallback if the search does not return a location.
-
-🧠 Simulation Logic
-
-The prototype dynamically calculates transaction splitting based on the entered fraud amount.
-
-For example, for:
-
+```text
 Fraud Amount = ₹85,000
 
-The simulated routing becomes approximately:
-
+Layer 1
+   ↓
 ₹85,000
-   │
+
    ├── 55% → ₹46,750
    │
    └── 45% → ₹38,250
+```
 
-The application also generates three simulated ATM hotspots around the incident location with predefined risk values of 94%, 87%, and 62%.
+This provides a visual demonstration of how transaction layering could be represented in an investigative interface.
 
-🔐 Interception Workflow
+---
 
-Once the simulation completes:
+# 🚨 Risk Visualization
 
-1930 Complaint
-      │
-      ▼
-Location Resolution
-      │
-      ▼
-Incident Mapping
-      │
-      ▼
-Mule Routing Analysis
-      │
-      ▼
-ATM Hotspot Prediction
-      │
-      ├──────────────┐
-      ▼              ▼
-Bank Auto-Hold   Police Dispatch
+The map uses different markers for different investigation states.
 
-Both interception actions are currently simulated frontend actions and do not communicate with real banking or police systems.
+| Marker    | Meaning               |
+| --------- | --------------------- |
+| 🔵 Indigo | Incident Anchor Point |
+| 🔴 Red    | Critical Risk         |
+| 🟠 Amber  | Secondary Candidate   |
 
-⚠️ Important Disclaimer
+Critical candidates are currently defined as:
 
-This project is a proof-of-concept / hackathon prototype.
+```text
+Risk > 80%
+```
 
-It does not currently provide:
+Secondary candidates fall within:
 
-Real NCRP telemetry
+```text
+50% – 80%
+```
 
-Real bank API integration
+---
 
-Real police dispatch
+# 📊 Investigation Dashboard
 
-Real-time transaction monitoring
+The interface is divided into three operational sections.
 
-Real money-mule identification
+## Left Panel
 
-Real ATM cash-out prediction
+Contains:
 
-Production-grade machine learning predictions
+* 1930 complaint ingestion
+* Incident location
+* Fraud amount
+* Incident time
+* Destination mule account
+* OSM query control
+* Money-mule routing visualization
 
-Access to confidential law-enforcement databases
+## Center Panel
 
-All financial routing, risk scores, ATM locations, and interception responses are simulated.
+Contains:
 
-🔮 Future Improvements
+* Interactive Leaflet map
+* Incident anchor
+* ATM/Bank POI nodes
+* Risk circles
+* Geographic visualization
 
-Potential production extensions include:
+## Right Panel
 
-Real 1930/NCRP API integration
+Contains:
 
-Machine-learning based fraud-risk prediction
+* Live OSM infrastructure results
+* Risk percentage
+* Coordinates
+* Distance
+* Estimated corridor
+* Interception actions
 
-Real-time transaction graph analysis
+---
 
-Neo4j backend integration
+# 🛰️ Interception Actions
 
-Bank API integration
+The dashboard provides two simulated response controls:
 
-Real ATM and banking-location datasets
+### 🏦 Bank Auto-Hold
 
-Real-time geospatial analytics
+```text
+Trigger Bank Auto-Hold
+        ↓
+REST Webhook
+        ↓
+Core Banking API
+```
 
-Historical fraud hotspot analysis
+### 👮 Police Dispatch
 
-Role-based authentication
+```text
+Dispatch Beat Police Alert
+        ↓
+Geo-Push
+        ↓
+Nearest Police Patrol
+```
 
-Audit logging
+These actions currently provide **frontend simulation messages only**.
 
-Secure REST API backend
+They do not actually contact:
 
-PostgreSQL/PostGIS geospatial database
+* Banks
+* Police departments
+* NCRP
+* I4C
+* Core banking systems
+* Government APIs
 
-Automated case-management workflow
+---
 
-Real-time alerting system
+# 🛠️ Technology Stack
 
-🎯 Project Objective
+| Technology           | Usage                    |
+| -------------------- | ------------------------ |
+| HTML5                | Application structure    |
+| CSS3                 | Custom interface styling |
+| JavaScript           | Application logic        |
+| Tailwind CSS         | UI framework             |
+| Leaflet.js           | Interactive mapping      |
+| OpenStreetMap        | Map & POI data           |
+| Nominatim            | Geocoding & POI search   |
+| Font Awesome         | Icons                    |
+| Google Fonts         | Typography               |
+| Browser LocalStorage | Demo credential storage  |
 
-S.A.M.A.R.T.H. demonstrates how geospatial intelligence + financial graph analysis + automated response workflows can be combined into a single operational dashboard for cyber-fraud investigation.
+---
 
-The goal is to reduce the time between:
+# 🔄 System Workflow
 
-Complaint → Analysis → Prediction → Intervention
+```text
+┌──────────────────────┐
+│   Officer Login      │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│  Submit Fraud Case   │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│ Location Geocoding   │
+│    via Nominatim     │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│ Query OSM ATM/Bank   │
+│       Nodes          │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│ Calculate Haversine  │
+│      Distance        │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│ Dynamic Risk Scoring │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│ Rank & Visualize     │
+│ Infrastructure Nodes │
+└──────────┬───────────┘
+           ↓
+     ┌─────┴─────┐
+     ↓           ↓
+┌─────────┐ ┌─────────────┐
+│ Bank    │ │ Police      │
+│ Hold    │ │ Dispatch    │
+└─────────┘ └─────────────┘
+```
 
-👨‍💻 Team
+---
 
-BugBusters
+# 📁 Project Structure
 
-Built as a cybersecurity / hackathon prototype.
+```text
+S.A.M.A.R.T.H/
+│
+├── samarth.html
+│
+└── README.md
+```
 
-📜 License
+---
 
-This project is intended for educational, research, and demonstration purposes.
+# ▶️ Installation & Usage
 
-Add an appropriate open-source license before public redistribution.
+## 1. Clone the Repository
 
-⭐ If You Like This Project
+```bash
+git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
+```
 
-Give the repository a ⭐ on GitHub and feel free to fork it for experimentation and development.
+## 2. Open the Project
+
+```bash
+cd YOUR-REPOSITORY
+```
+
+Open the HTML file directly in a browser.
+
+For the best development experience, use **VS Code + Live Server**.
+
+---
+
+# 🔑 Demo Authentication
+
+The current prototype contains a default fallback credential:
+
+```text
+Officer ID:
+CYBER-OFFICER
+
+Password:
+admin
+
+Security Passphrase:
+police
+```
+
+### ⚠️ Security Warning
+
+These credentials exist **inside the client-side JavaScript**.
+
+Never use this authentication mechanism for a real production system.
+
+A production implementation should use:
+
+```text
+Frontend
+    ↓
+Secure HTTPS API
+    ↓
+Authentication Service
+    ↓
+Hashed Password Database
+    ↓
+JWT / Secure Session
+    ↓
+Role-Based Access Control
+```
+
+---
+
+# 🌐 External Services
+
+The application currently communicates with public OpenStreetMap services for geospatial information.
+
+### Nominatim
+
+Used for:
+
+* Location geocoding
+* ATM searches
+* Bank searches
+
+### OpenStreetMap
+
+Used for:
+
+* Map tiles
+* Geographic points of interest
+
+Because these are public services, availability, rate limits, and data completeness may vary.
+
+---
+
+# 🧪 Example Investigation
+
+Input:
+
+```text
+Location:
+Hazratganj, Lucknow
+
+Fraud Amount:
+₹85,000
+
+Incident Time:
+18 minutes ago
+```
+
+The system then:
+
+```text
+1. Resolves Hazratganj coordinates
+             ↓
+2. Queries nearby OSM ATM/Bank nodes
+             ↓
+3. Calculates distance to each node
+             ↓
+4. Calculates dynamic risk scores
+             ↓
+5. Sorts nodes by risk
+             ↓
+6. Displays them on the map
+             ↓
+7. Displays transaction-routing visualization
+             ↓
+8. Enables response-action controls
+```
+
+---
+
+# 🔮 Future Development
+
+The current prototype can be extended into a complete full-stack platform.
+
+### 🤖 AI / ML
+
+* Fraud probability prediction
+* Transaction anomaly detection
+* Money-mule classification
+* Temporal fraud pattern detection
+* Graph-based fraud detection
+* Cash-out probability modelling
+* Historical hotspot prediction
+
+### 🕸️ Graph Intelligence
+
+Integration with:
+
+* Neo4j
+* Graph Data Science
+* Transaction relationship graphs
+* Multi-hop account tracing
+* Entity resolution
+
+### 🏦 Financial Intelligence
+
+Potential future integrations:
+
+* Secure banking APIs
+* Transaction monitoring
+* Account risk scoring
+* Automated hold workflows
+* Suspicious transaction alerts
+
+### 🗺️ Geospatial Intelligence
+
+Potential additions:
+
+* Real ATM datasets
+* Road-network routing
+* Travel-time estimation
+* Historical crime hotspots
+* Heatmaps
+* Geofencing
+* Spatial clustering
+
+### 🔐 Enterprise Security
+
+Production implementation should include:
+
+* Backend authentication
+* Password hashing
+* MFA
+* RBAC
+* JWT/session management
+* Encryption
+* Audit logs
+* API authorization
+* Rate limiting
+* Secure secrets management
+
+---
+
+# ⚠️ Disclaimer
+
+S.A.M.A.R.T.H. is a **proof-of-concept cybersecurity and geospatial intelligence project**.
+
+The application does not provide access to confidential government, banking, police, NCRP, or I4C systems.
+
+Although the application queries **real OpenStreetMap geographic/POI data**, the following components are simulated:
+
+* Financial transaction routing
+* Mule-account information
+* Risk scoring methodology
+* Cash-out corridor estimation
+* Bank auto-hold
+* Police dispatch
+* Law-enforcement integration
+
+The project should **not be used to make real-world enforcement decisions** without validated datasets, appropriate authorization, rigorous testing, and qualified human oversight.
+
+---
+
+# 🎯 Project Goal
+
+The core objective of S.A.M.A.R.T.H. is to demonstrate a unified workflow for:
+
+```text
+CYBER FRAUD
+     ↓
+GEOSPATIAL INTELLIGENCE
+     ↓
+INFRASTRUCTURE ANALYSIS
+     ↓
+RISK PRIORITIZATION
+     ↓
+INVESTIGATIVE RESPONSE
+```
+
+The long-term vision is to reduce the time between **fraud reporting, intelligence generation, and coordinated response**.
+
+---
+
+# 👨‍💻 Developed By
+
+## BugBusters
+
+Cybersecurity / Smart India Hackathon Prototype
+
+---
+
+# ⭐ Support
+
+If you find the project useful, consider giving the repository a ⭐ on GitHub.
+
+Contributions, improvements, and research-oriented extensions are welcome.
